@@ -1,7 +1,7 @@
-#!/usr/bin/env python  
-# _*_ coding:utf-8 _*_  
-#  
-# @Version : 1.0  
+#!/usr/bin/env python
+# _*_ coding:utf-8 _*_
+#
+# @Version : 1.0
 # @Time    : 2019/11/1
 # @Author  : 圈圈烃
 # @File    : SougouSpider
@@ -12,8 +12,7 @@ from bs4 import BeautifulSoup
 from urllib.parse import unquote
 import requests
 import re
-import os
-
+import time
 
 class SougouSpider:
 
@@ -25,8 +24,9 @@ class SougouSpider:
             "Accept-Encoding": "gzip, deflate",
             "Connection": "keep-alive",
         }
+        self.session = requests.Session()
 
-    def GetHtml(self, url, isOpenProxy=False, myProxies=None):
+    def GetHtml(self, url, isOpenProxy=False, myProxies=None, retries=5):
         """
         获取Html页面
         :param isOpenProxy: 是否打开代理，默认否
@@ -44,10 +44,16 @@ class SougouSpider:
                 resp = requests.get(url, headers=self.headers, timeout=5)
             resp.encoding = resp.apparent_encoding
             print("GetHtml成功..." + url)
+            time.sleep(5)  # 防止被waf判定为恶意
             return resp
-        except Exception as e:
-            print("GetHtml失败..." + url)
-            print(e)
+        except requests.exceptions.ReadTimeout as e:
+            print("GetHtml失败...尝试重连" + url)  # 超时重连5次
+            if retries > 0:
+                time.sleep(5)
+                return self.GetHtml(url, isOpenProxy, myProxies, retries=retries-1)
+            else:
+                print("重连失败..." + url)
+                print(e)
 
     def GetCategoryOne(self, resp):
         """获取大类链接"""
@@ -120,3 +126,4 @@ class SougouSpider:
             resp = requests.get(downloadUrl, headers=self.headers, timeout=5)
         with open(path, "wb") as fw:
             fw.write(resp.content)
+        time.sleep(5)  # 防止被waf判定为恶意
