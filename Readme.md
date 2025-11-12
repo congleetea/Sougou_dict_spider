@@ -85,6 +85,54 @@ output_file = 'path/to/output.txt'  # 替换为你的输出文件路径
 * 当任务结束，会输出`Concatenation completed.`
 
 
+## 使用fcitx5批量导入搜狗词库
+
+新增的`transfer_to_dict.py`脚本实现了批量将.scel文件转换为fcitx5拼音输入法可用的.dict格式的功能，集成了文件收集（find）和转换步骤。
+
+### 安装依赖
+需要安装 `fcitx5-chinese-addons` 包提供 `scel2org5` 命令和 `libime` 包提供 `libime_pinyindict` 命令：
+```bash
+# Ubuntu/Debian
+sudo apt install fcitx5-chinese-addons libime-bin
+
+# Fedora/RHEL
+sudo dnf install fcitx5-chinese-addons libime
+
+# Arch Linux
+sudo pacman -S fcitx5-chinese-addons libime
+```
+
+### 使用方法
+```bash
+# 基本用法（使用main.py中定义的默认路径，与教程保持一致）
+python transfer_to_dict.py
+
+# 指定源目录
+python transfer_to_dict.py --source-dir /path/to/scel/files
+
+# 指定自定义输出目录
+python transfer_to_dict.py --source-dir /path/to/scel/files --dict-dir /path/to/output/dict
+
+# 跳过收集步骤，仅执行转换（如果.scel文件已经收集好了）
+python transfer_to_dict.py --no-collect --collect-target /path/to/already/collected/scel
+```
+
+参数说明：
+- `--source-dir`: 搜索.scel文件的源目录（默认：/home/xuancong/sogou/ciku，与main.py中的SavePath一致）
+- `--collect-target`: 收集.scel文件的目标目录（默认：scel/）
+- `--txt-dir`: 中间.txt文件的目录（默认：txt/）
+- `--dict-dir`: 最终.dict文件的目录（默认：dict/）
+- `--exclude-patterns`: 要排除的路径模式（默认：['/436/', '/403/']，对应电子游戏和娱乐休闲类别）
+- `--no-collect`: 跳过收集步骤，仅执行转换
+
+转换完成后，将生成的.dict文件复制到 `~/.local/share/fcitx5/pinyin/dictionaries/` 目录下即可在fcitx5中使用。
+
+### 与K4YT3X教程的对应关系
+根据[K4YT3X教程](https://k4yt3x.com/post/fcitx5-pinyin-import-sougou-dict/)，此脚本实现了以下步骤：
+1. 批量收集.scel文件（对应教程中的find命令步骤）
+2. 使用scel2org5将.scel转为.txt格式
+3. 使用libime_pinyindict将.txt转为.dict格式
+
 ## 许可(License)
 [MIT license](https://github.com/StuPeter/Sougou_dict_spider/blob/master/LICENSE "MIT license")
     
