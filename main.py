@@ -31,7 +31,7 @@ Categories = [
 SavePath = r"/home/xuancong/sogou/ciku"
 
 # TXT保存路径
-txtSavePath = r"/home/xuancong/sogou/txt"
+txtSavePath = r"/home/xuancong/sogou/txt1"
 
 # 开始链接
 startUrl = "https://pinyin.sogou.com/dict/cate/index/1"
