@@ -115,6 +115,12 @@ python transfer_to_dict.py --source-dir /path/to/scel/files --dict-dir /path/to/
 
 # 跳过收集步骤，仅执行转换（如果.scel文件已经收集好了）
 python transfer_to_dict.py --no-collect --collect-target /path/to/already/collected/scel
+
+# 跳过自动复制到fcitx5目录（默认会自动复制）
+python transfer_to_dict.py --no-copy
+
+# 指定自定义的fcitx5词库目录
+python transfer_to_dict.py --fcitx5-dir /custom/path/to/fcitx5/dictionaries
 ```
 
 参数说明：
@@ -124,8 +130,10 @@ python transfer_to_dict.py --no-collect --collect-target /path/to/already/collec
 - `--dict-dir`: 最终.dict文件的目录（默认：dict/）
 - `--exclude-patterns`: 要排除的路径模式（默认：['/436/', '/403/']，对应电子游戏和娱乐休闲类别）
 - `--no-collect`: 跳过收集步骤，仅执行转换
+- `--no-copy`: 跳过自动复制到fcitx5目录（默认会自动复制）
+- `--fcitx5-dir`: 自定义fcitx5词库目录（默认：~/.local/share/fcitx5/pinyin/dictionaries/）
 
-转换完成后，将生成的.dict文件复制到 `~/.local/share/fcitx5/pinyin/dictionaries/` 目录下即可在fcitx5中使用。
+转换完成后，脚本会自动将生成的.dict文件复制到 `~/.local/share/fcitx5/pinyin/dictionaries/` 目录下。如需手动指定目录或跳过自动复制，可使用相应参数。完成后重启fcitx5即可使用新词库。
 
 ### 与K4YT3X教程的对应关系
 根据[K4YT3X教程](https://k4yt3x.com/post/fcitx5-pinyin-import-sougou-dict/)，此脚本实现了以下步骤：

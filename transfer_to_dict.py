@@ -10,6 +10,7 @@ import subprocess
 import argparse
 import os
 import sys
+import shutil
 from typing import List, Optional
 
 
@@ -110,6 +111,35 @@ def convert_scel_to_dict(scel_dir: str, txt_dir: str, dict_dir: str):
             print(f"Successfully converted {file} to {dict_file}")
 
 
+def copy_dict_files_to_fcitx5(dict_dir: str, fcitx5_dir: str = "~/.local/share/fcitx5/pinyin/dictionaries/"):
+    """
+    Copy .dict files to fcitx5 dictionaries directory.
+
+    Args:
+        dict_dir: Directory containing .dict files
+        fcitx5_dir: Target fcitx5 dictionaries directory (default: ~/.local/share/fcitx5/pinyin/dictionaries/)
+    """
+    dict_path = pathlib.Path(dict_dir)
+    expanded_fcitx5_dir = pathlib.Path(fcitx5_dir).expanduser()
+
+    # Create fcitx5 directory if it doesn't exist
+    expanded_fcitx5_dir.mkdir(parents=True, exist_ok=True)
+
+    dict_files = list(dict_path.glob("*.dict"))
+    if not dict_files:
+        print(f"No .dict files found in {dict_dir}")
+        return
+
+    copied_count = 0
+    for dict_file in dict_files:
+        target_file = expanded_fcitx5_dir / dict_file.name
+        print(f"Copying {dict_file} to {target_file}")
+        shutil.copy2(dict_file, target_file)
+        copied_count += 1
+
+    print(f"Successfully copied {copied_count} .dict files to {expanded_fcitx5_dir}")
+
+
 def main():
     parser = argparse.ArgumentParser(
         description="Batch convert sougou scel files to fcitx5 pinyin dict format"
@@ -145,6 +175,16 @@ def main():
         action="store_true",
         help="Skip the collection step and only perform conversion"
     )
+    parser.add_argument(
+        "--no-copy",
+        action="store_true",
+        help="Skip copying .dict files to fcitx5 directory"
+    )
+    parser.add_argument(
+        "--fcitx5-dir",
+        default="~/.local/share/fcitx5/pinyin/dictionaries/",
+        help="Target fcitx5 dictionaries directory (default: ~/.local/share/fcitx5/pinyin/dictionaries/)"
+    )
 
     args = parser.parse_args()
 
@@ -161,7 +201,13 @@ def main():
     convert_scel_to_dict(args.collect_target, args.txt_dir, args.dict_dir)
 
     print(f"Conversion complete! .dict files are in {args.dict_dir}")
-    print("To use these files, copy them to ~/.local/share/fcitx5/pinyin/dictionaries/")
+
+    if not args.no_copy:
+        print(f"Copying .dict files to fcitx5 directory: {args.fcitx5_dir}")
+        copy_dict_files_to_fcitx5(args.dict_dir, args.fcitx5_dir)
+        print("Process complete! Restart fcitx5 to use the new dictionaries.")
+    else:
+        print("To use these files, copy them to ~/.local/share/fcitx5/pinyin/dictionaries/ or run without --no-copy")
 
 
 if __name__ == "__main__":
